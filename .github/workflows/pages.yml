@@ -1,0 +1,46 @@
+# Publish the browser typing test to GitHub Pages.
+#
+# The browser test lives in web/ and is served locally by
+# `./run.sh web` (python -m http.server --directory web). GitHub's
+# folder-based Pages source only accepts / or /docs, so the site is
+# published from web/ with an upload-pages-artifact step instead.
+#
+# There is no build. web/index.html is a single self-contained file with
+# no third-party library, so the deploy is a straight copy.
+
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - web/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
