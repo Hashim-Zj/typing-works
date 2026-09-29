@@ -1,0 +1,2 @@
+# The terminal UI uses curses. It is included with Python on Linux/macOS.
+windows-curses; platform_system == "Windows"
